@@ -1,6 +1,5 @@
-#Have total emissions from PM2.5 decreased in the United States from 1999 to 2008? 
-#Using the base plotting system, make a plot showing the total PM2.5 emission 
-#from all sources for each of the years 1999, 2002, 2005, and 2008
+#Have total emissions from PM2.5 decreased in the Baltimore City, Maryland (fips == "24510") 
+#from 1999 to 2008? Use the base plotting system to make a plot answering this question.
 
 #download the file is does not exists
 downloadData <- function (fileName) {
@@ -13,7 +12,7 @@ downloadData <- function (fileName) {
 
 #load the RDS file and returns in a data.table format
 loadData <- function(fileName) {
-  #library(data.table)
+  library(data.table)
   downloadData(fileName)
   data<-readRDS(fileName)
   data<-as.data.table(data)
@@ -23,26 +22,30 @@ loadData <- function(fileName) {
 #aggregate the data per year
 getData <- function() {
   pm25Data <- loadData("summarySCC_PM25.rds")
+  pm25Data <- pm25Data[pm25Data$fips == "24510",]
   pm25Data <- pm25Data[,sum(Emissions),by=year]
   setnames(pm25Data,"V1","Emissions")
+  #sccData <- loadData("Source_Classification_Code.rds")
   pm25Data
 }
 
-createPlot1 <- function() {
+createPlot2 <- function() {
   pm25Data<-getData()
   
   #Open the PNG device
-  png("plot1.png",height=480,width=480)
+  png("plot2.png",height=480,width=480)
   
   #Build the plot
   plot(pm25Data$year,pm25Data$Emissions,pch=20,col="steelblue"
        ,xlab="Year"
        ,ylab="Total PM2.5 emitted, in tons"
-       ,main="PM2.5 Total Emission/Year")
+       ,main="PM2.5 Total Emission/Year in Baltimore City, Maryland")
   lines(pm25Data$year,pm25Data$Emissions,col="blue")
   
   #Close the PNG device
   dev.off()
 }
 
-createPlot1()
+createPlot2()
+
+
