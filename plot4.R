@@ -20,31 +20,32 @@ loadData <- function(fileName) {
 
 #aggregate the data per year
 getData <- function() {
+  sccData <- loadData("Source_Classification_Code.rds")
+  sccData <- sccData[grepl("coal", sccData$Short.Name,  ignore.case = TRUE) & grepl("comb", sccData$Short.Name,  ignore.case = TRUE),]$SCC
+  
   pm25Data <- loadData("summarySCC_PM25.rds")
-  pm25Data <- pm25Data[pm25Data$fips == "24510"]
+  pm25Data <- pm25Data[pm25Data$SCC %in% sccData]
   pm25Data <- pm25Data[,sum(Emissions),by=c("type","year")]
   setnames(pm25Data,"V1","Emissions")
-  #sccData <- loadData("Source_Classification_Code.rds")
+  
   pm25Data
 }
 
 createPlot4 <- function() {
-  library(ggplot2)
   pm25Data<-getData()
   
+  #Open the PNG device
+  png("plot4.png",height=480,width=520)
+  
   #Build the plot
-  p <- ggplot(pm25Data, aes(x=year, y=Emissions)) 
-  p <- p + geom_point(aes(color=type)) 
-  p <- p + facet_grid(. ~ type)
-  p <- p + geom_smooth(method="lm",aes(color=type))
-  p <- p + labs(title="PM2.5 Total Emission by Type - Year in Baltimore City, Maryland",x="Year",y="Total PM2.5 emitted, in tons")
-  p <- p + theme(legend.position="none")
-  p <- p + theme(text=element_text(size=4), plot.title=element_text(size=6,face="bold"))
-  p <- p + theme(axis.title=element_text(size=5,face="bold"))
-  p <- p + theme(legend.title=element_text(size=5,face="bold")) 
+  plot(pm25Data$year,pm25Data$Emissions,pch=20,col="steelblue"
+       ,xlab="Year"
+       ,ylab="Total PM2.5 emitted, in tons"
+       ,main="PM2.5 Total Emission/Year from coal combustion-related sources")
+  lines(pm25Data$year,pm25Data$Emissions,col="blue")
   
-  
-  ggsave(file="plot4.png",plot=p, width=4,height=2)
+  #Close the PNG device
+  dev.off()
 }
 
 createPlot4()

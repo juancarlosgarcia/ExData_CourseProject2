@@ -25,7 +25,7 @@ getData <- function() {
   pm25Data <- pm25Data[pm25Data$fips == "24510",]
   pm25Data <- pm25Data[,sum(Emissions),by=year]
   setnames(pm25Data,"V1","Emissions")
-  #sccData <- loadData("Source_Classification_Code.rds")
+  
   pm25Data
 }
 
