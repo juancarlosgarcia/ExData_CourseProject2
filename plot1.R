@@ -4,17 +4,23 @@
 
 #download the file is does not exists
 downloadData <- function (fileName) {
-  setInternet2(use=T) #required to support SSL in the url
+  library(RCurl)
+  setInternet2(use=TRUE) #required to support SSL in the url
   urlSource=paste0("https://raw.githubusercontent.com/juancarlosgarcia/ExData_CourseProject2/master/",fileName)
   if (!file.exists(fileName)) {
-    download.file(urlSource,destfile=fileName,method="auto")
+    download.file(urlSource,destfile=fileName)
   }
 }
 
 #load the RDS file and returns in a data.table format
 loadData <- function(fileName) {
-  #library(data.table)
-  downloadData(fileName)
+  library(data.table)
+  if (!file.exists(fileName)) {
+    fileZip="exdata-data-NEI_data.zip"
+    downloadData(fileZip)
+    unzip(fileZip)
+  }
+  
   data<-readRDS(fileName)
   data<-as.data.table(data)
   data
